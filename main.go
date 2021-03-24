@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"syscall"
 	"time"
 
@@ -25,6 +26,7 @@ func main() {
 			if e, ok := err.(error); ok {
 				err = errors.Wrapf(e, "panic occurred outside of the request processing")
 			}
+			log.Fatalln(err)
 		}
 		gracefulShuttdown(server)
 	}()
@@ -49,6 +51,7 @@ func main() {
 	}
 
 	quit := make(chan os.Signal, 1)
+	log.Printf(fmt.Sprintf("[START] server. port: %s\n", addr))
 	go func() {
 		if err := server.Serve(netutil.LimitListener(listner, 1024)); err != http.ErrServerClosed {
 			log.Fatalf("[CLOSED] server closed with error")
@@ -56,8 +59,8 @@ func main() {
 		}
 	}()
 
-	log.Printf(fmt.Sprintf("[START] server. port: %s\n", addr))
-
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT, os.Interrupt)
+	log.Println(fmt.Sprintf("SIGNAL %d received, so server shutting down now...\n", <-quit))
 }
 
 func gracefulShuttdown(server *http.Server) {
