@@ -16,7 +16,7 @@ func main() {
 	for idx := 0; idx < 1050; idx++ {
 		i := idx
 		eg.Go(func() error {
-			resp, err := http.Get("http//localhost:8080")
+			resp, err := http.Get("http://localhost:8080")
 			if err != nil {
 				return err
 			}
