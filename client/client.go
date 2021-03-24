@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -14,9 +16,16 @@ func main() {
 	for idx := 0; idx < 1050; idx++ {
 		i := idx
 		eg.Go(func() error {
-			if i > 1024 {
-				log.Println(fmt.Sprintf("request number :%d", i))
+			resp, err := http.Get("http//localhost:8080")
+			if err != nil {
+				return err
 			}
+			defer resp.Body.Close()
+			byteArray, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return err
+			}
+			log.Println(fmt.Sprintf("request number :%d, content: %s", i, string(byteArray)))
 			return nil
 		})
 	}
