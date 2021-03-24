@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -20,4 +21,5 @@ func handler(
 	w.Header().Set("Content-Type", "text/plain")
 	time.Sleep(time.Millisecond * 500)
 	io.WriteString(w, "Limited")
+	log.Printf("request completed")
 }
